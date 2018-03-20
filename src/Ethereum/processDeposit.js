@@ -5,7 +5,7 @@ const Libs = require("../Common/Libs")
 async function process(){
     async function findDeposit(){
         return new Promise(function(resolve, reject){
-            DepositDB.findOneAndUpdate({status: "init"}, {status: "processed", processTime: new Date()}, async function(err, obj){
+            DepositDB.findOneAndUpdate({status: "processing"}, {status: "processed", processTime: new Date()}, async function(err, obj){
                 try {
                     if (err) return reject(err)
                     if (!obj) return resolve()

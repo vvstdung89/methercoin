@@ -1,29 +1,44 @@
 const AccountDB = require("../models/account")
 const WithdrawDB = require("../models/withdraw")
+const DepositDB = require("../models/deposit")
 const EthereumAPI = require("../Ethereum/ethereumAPI")
 const MetherAPI = require("../Mether/metherAPI")
 const Libs = require("../Common/Libs")
 
 module.exports = {
     getAccount: getAccount,
+    getDeposit: getDeposit,
     createAccount: createAccount,
     withdraw: withdraw,
     transfer: transfer,
     getWithdrawFee: getWithdrawFee
 }
-function getAccount(id){
-    AccountDB.findOne({id: id}, function(err, result){
-        if (!result) return {status: "fail"}
-        return {status:"ok", data: result}
+async function getAccount(id){
+    return new Promise(function(resolve){
+        AccountDB.findOne({id: id}, function(err, result){
+            if (!result) resolve({status: "fail"})
+            resolve({status:"ok", data: result})
+        })
     })
+    
 }
 
 function getWithdrawFee(){
     return Libs.withdrawFee()
 }
 
+function getDeposit(accountID){
+    return new Promise(async function(resolve){
+        DepositDB.find({accountID: accountID}, function(err, objs){
+            if (err) resolve({status: "fail"})
+            resolve({status: "ok", data: objs})
+        })
+    })
+}
+
 async function transfer(fromAccountID, toAccountID, metherValue){
     //write to log
+    console.log(fromAccountID, toAccountID, metherValue)
     try {
         await MetherAPI.sub(fromAccountID, metherValue) 
     } catch(err){
@@ -43,35 +58,51 @@ async function transfer(fromAccountID, toAccountID, metherValue){
 
 async function withdraw(withdrawAccountID, toAddr, metherValue){
     //write to log
+    const transferValue = Libs.convertCoin2Wei(String(Math.floor(metherValue - getWithdrawFee())))
+    try {
+        var logWithdraw = new WithdrawDB({
+            to: toAddr,
+            value: transferValue,
+            accountID: withdrawAccountID,
+            status: 0
+        })
+
+        await new Promise(function(resolve){
+            logWithdraw.save(function(err){
+                if (err) reject()
+                resolve()
+            })
+        })
+    } catch(err){
+        return {status: "fail"}
+    }
+    
+    
     try {
         await MetherAPI.sub(withdrawAccountID, metherValue)
     } catch(err){
         console.log(err)
+        WithdrawDB.findOneAndUpdate({_id: logWithdraw._id}, {status: -1}, function(){})
         return {status: "fail"}
     }
 
     try {
-        const transferValue = Libs.convertCoin2Wei(String(Math.floor(metherValue - getWithdrawFee())))
-        const tx = await EthereumAPI.transferTo(toAddr, transferValue)
+        var tx = await EthereumAPI.transferTo(toAddr, transferValue)
         if (!tx) throw new Error("cannot send transaction")
     } catch(err){
         console.log(err)
+        WithdrawDB.findOneAndUpdate({_id: logWithdraw._id}, {status: -1}, function(){})
         await MetherAPI.add(withdrawAccountID, metherValue)
         return {status: "fail"}
     }
 
-    new WithdrawDB({
-        to: toAddr,
+    WithdrawDB.findOneAndUpdate({_id: logWithdraw._id}, {
         txid: tx.transactionHash,
-        blockNumber: tx.blockHash,
+        blockNumber: tx.blockNumber,
         blockHash: tx.blockHash,
-        value: transferValue,
-        accountID: withdrawAccountID,
-        status: 0
-    }).save(function(){
-    })
-
-    return {status: "ok", txid: tx.transactionHash}
+        status: 1
+    }, function(){})
+    return {status: "ok", data: {txid: tx.transactionHash}}
     
 }
 
@@ -114,7 +145,7 @@ async function createAccount(){
                     console.log(err)
                     return resolve({status: "fail"})
                 }
-                return resolve({status: "ok", data: newAccount})
+                return resolve({status: "ok", data: {id: newAccount.id, etherAddress: newAccount.ether.addr}})
             })
         })
     } catch(err){

@@ -21,6 +21,8 @@ async function sub(accountID, value){
         semaphoreList[accountID].take(function(){
             AccountDB.findOne({"id": accountID}, function(err, obj){
                 if (err || !obj || obj.mether.balance < value) {
+                    if (err) console.log(err)
+
                     semaphoreList[accountID].leave()
                     return reject(new Error("Something wrong"))
                 }

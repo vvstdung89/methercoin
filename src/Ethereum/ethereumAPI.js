@@ -35,7 +35,7 @@ async function start(){
     }
 
 //     // console.log(web3.utils.toWei("15999999996215800010","wei"))
-    var accs = await web3.eth.getAccounts()
+//     var accs = await web3.eth.getAccounts()
     // var personalAccount = localKeys[0]
 //     // await getBalance(personalAccount)
     // var newAccount = await web3.eth.accounts.privateKeyToAccount("0x488b6059f14542865ec1fb91c2b38c713a3f1d7a88a41e70f94ee891e393dcce")

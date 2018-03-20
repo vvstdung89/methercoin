@@ -51,9 +51,9 @@ echo "Run deposit ..."
 
 sleep 2s
 
-mocha $1
+mocha --timeout 15000 $1
 
-sleep 60s
+sleep 100s
 
 
 

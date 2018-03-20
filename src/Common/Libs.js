@@ -10,13 +10,13 @@ exports = module.exports = {
         return text;
     },
     encryptData: function(str){
-        var cipher = crypto.createCipher("aes-256-ctr", process.env["password"])
+        var cipher = crypto.createCipher("aes-128-cbc", process.env["password"])
 		var crypted = cipher.update(str,'utf-8','hex')
 		crypted += cipher.final('hex');
 		return crypted;
     },
     decryptData: function(str){
-        var decipher = crypto.createDecipher("aes-256-ctr", process.env["password"])
+        var decipher = crypto.createDecipher("aes-128-cbc", process.env["password"])
 		var dec = decipher.update(str,'hex','utf-8')
 		dec += decipher.final('utf-8');
 		return dec;
