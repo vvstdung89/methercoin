@@ -2,13 +2,19 @@ exports = module.exports = function (app, router){
 
 	app.use("/", router);
 
-	app.get("/account/createAccount", createAccount);
-	app.get("/account/getWithdrawFee", getWithdrawFee);
-	app.get("/account/transfer", transfer);
-	app.get("/account/withdraw", withdraw);
+	router.get("/account/createAccount", createAccount);
+	router.get("/account/getWithdrawFee", getWithdrawFee);
+	router.get("/account/transfer", transfer);
+	router.get("/account/withdraw", withdraw);
 
 	async function createAccount(req, res){
-		var account = await require("./Account/accountAPI").createAccount()
+		console.log("createAccount")
+		try {
+			var account = await require("./Account/accountAPI").createAccount()
+		} catch(err){
+			console.log(err)
+		}
+		console.log("account", account)
 		res.json(account)
 	}
 

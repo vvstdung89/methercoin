@@ -5,10 +5,17 @@ const MetherAPI = require("../Mether/metherAPI")
 const Libs = require("../Common/Libs")
 
 module.exports = {
+    getAccount: getAccount,
     createAccount: createAccount,
     withdraw: withdraw,
     transfer: transfer,
     getWithdrawFee: getWithdrawFee
+}
+function getAccount(id){
+    AccountDB.findOne({id: id}, function(err, result){
+        if (!result) return {status: "fail"}
+        return {status:"ok", data: result}
+    })
 }
 
 function getWithdrawFee(){
@@ -89,12 +96,11 @@ async function createAccount(){
     
         return new Promise(async function(resolve, reject){
             var newEther = await EthereumAPI.createKeypair()
-            console.log(newEther.privateKey)
             var newAccount  = new AccountDB({
                 id: Libs.generateID(20),
                 accessKey: Libs.encryptData(Libs.generateID(15)),
                 mether: {
-                    id: Libs.generateID(40),
+                    addr: Libs.generateID(40),
                     balance: 0
                 },
                 ether: {
@@ -104,11 +110,15 @@ async function createAccount(){
             })
     
             newAccount.save(function(err){
-                if (err) return resolve({status: "fail"})
-                return resolve({status: "ok", newAccount: newAccount})
+                if (err) {
+                    console.log(err)
+                    return resolve({status: "fail"})
+                }
+                return resolve({status: "ok", data: newAccount})
             })
         })
     } catch(err){
+        console.log(err)
         return {status: "fail"}
     }
     

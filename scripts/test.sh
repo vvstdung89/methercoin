@@ -23,16 +23,21 @@ cleanup() {
   if [ -n "$processAPI" ] && ps -p $processAPI > /dev/null; then
     kill -9 $processAPI
   fi
+
+  docker rm -f test_mongo
 }
 
 ganache-cli --gasLimit 0xfffffffffff > logs/test_ganache.log &
 ganachePID=$!
 
+echo "Start mongo ..."
+docker run -d -p 27017:27017 --name test_mongo mongo
+
 # wait for testbed startup
 echo "Start ganache ..."
 sleep 2s
 
-password=123 node src/Account/accountAPI > logs/test_account.log &
+password=123 PORT=10000 node src/server > logs/test_server.log &
 accountPID=$!
 echo "Run account ..."
 
@@ -44,8 +49,11 @@ password=123 node src/Ethereum/processDeposit > logs/test_processDeposit.log &
 processAPI=$!
 echo "Run deposit ..."
 
-sleep 1s
+sleep 2s
 
 mocha $1
+
+sleep 60s
+
 
 
