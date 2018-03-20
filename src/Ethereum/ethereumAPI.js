@@ -19,9 +19,7 @@ async function transferTo(toAddr, value){
     var localKeys = await web3.eth.getAccounts()
     var personalAccount = localKeys[0]  
     const tx = await web3.eth.sendTransaction({to: toAddr, from: personalAccount, value: value })
-    
     return tx
-    
 }
 async function start(){
     var localKeys = await web3.eth.getAccounts()
@@ -37,14 +35,14 @@ async function start(){
     }
 
 //     // console.log(web3.utils.toWei("15999999996215800010","wei"))
-//     var accs = await web3.eth.getAccounts()
-    var personalAccount = localKeys[0]
+    var accs = await web3.eth.getAccounts()
+    // var personalAccount = localKeys[0]
 //     // await getBalance(personalAccount)
-    var newAccount = await web3.eth.accounts.privateKeyToAccount("0x488b6059f14542865ec1fb91c2b38c713a3f1d7a88a41e70f94ee891e393dcce")
-    console.log(newAccount)
-    await web3.eth.sendTransaction({to: newAccount.address, from: personalAccount, value: web3.utils.toWei('20', 'ether') })
+    // var newAccount = await web3.eth.accounts.privateKeyToAccount("0x488b6059f14542865ec1fb91c2b38c713a3f1d7a88a41e70f94ee891e393dcce")
+    // console.log(newAccount)
+    // await web3.eth.sendTransaction({to: newAccount.address, from: personalAccount, value: web3.utils.toWei('20', 'ether') })
 
-    await getBalance(newAccount.address)
+    // await getBalance(newAccount.address)
     
 //     // var rawTx = {
 //     //     gas: 21000, 

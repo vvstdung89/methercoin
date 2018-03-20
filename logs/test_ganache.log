@@ -1,0 +1,51 @@
+Ganache CLI v6.1.0 (ganache-core: 2.1.0)
+
+Available Accounts
+==================
+(0) 0x6221cf7952eccff2a1c42f40ecf6cd7f493cc866
+(1) 0x44fe9e1671b84276958f575f758f490b1c98a737
+(2) 0xb3cf7f951ff0c689449ffb8da459332955d42922
+(3) 0x4713f031908da72dbf3684454fed606b7cf0fb31
+(4) 0xc6520cc5c5fbf624b32f1fdf190377e75f9b0eeb
+(5) 0x4282dc20225402447e39d2684c56d4b202ea51b8
+(6) 0xcff00e3b739e6b2e4d68364527e8e1dab81b9f65
+(7) 0xb4f67fb922ad2335dbddafd27e166cf5551ff037
+(8) 0xab33efb193cb5fc3bf595db26eea99d13c0d3825
+(9) 0x764241c9a7f399f0ae85469e5d8bb91aaee34b29
+
+Private Keys
+==================
+(0) b0c8ca4d7086a9768b701aec3e218916ef109ac066840e96ca2df14890bd7315
+(1) d3db74b21444779f8807f4f1cac1186e14a7b5af00423cacb2df18568891d931
+(2) 6a580b2b16024e6cee0b91826dedcd6765efccc3bbf003946620445505290235
+(3) 05343a313cdc6a2ff3a074fd40b4e663cea0492aa05b7e3ed2f6851150da4d9f
+(4) 4b6f882d2af16928258de8c83986ee6e8decfaf127c5395f3acb82e293051a24
+(5) a602b3cc8ba06fd764427dbe2ef8cb6cca527bb9ecf548419389c90c6041cdbc
+(6) 0cad4c0df93725eb52edef562b46f46c876a0aa701008d9bbb73b3db4b37fd9c
+(7) 90d3bc852396483ad29591f950658e6d6f52cf7381ddd31c0d366045c4235b70
+(8) 38ab63280f09dc22b2817ec4a0c0ca46ed4f9cf2d4cb661b0335ffec3a3c6329
+(9) 03b012e61f89e9fedb055823423a120c969c8823b9c79be377c0487341b49be6
+
+HD Wallet
+==================
+Mnemonic:      hole away meat ranch fault burden mirror salute ethics remain frown rubber
+Base HD Path:  m/44'/60'/0'/0/{account_index}
+
+Gas Limit
+==================
+17592186044415
+
+Listening on localhost:8545
+eth_blockNumber
+eth_accounts
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_accounts

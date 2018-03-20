@@ -23,7 +23,7 @@ async function getProcessedBlock(){
         
     } catch(err) {        
         console.log(err)
-        proceess.exit()
+        process.exit()
     }
     
 
@@ -85,7 +85,7 @@ async function searchBlock(){
 
     } catch(err) {        
         console.log(err)
-        proceess.exit()
+        process.exit()
     }
     
 }

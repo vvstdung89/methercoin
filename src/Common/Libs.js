@@ -26,8 +26,14 @@ exports = module.exports = {
         return Number(szabo)
     },
     convertCoin2Wei: function(str){
-        const coint = Web3.utils.toWei(str,"szabo")
-        return Number(coint)
+        const coin = Web3.utils.toWei(str,"szabo")
+        return Number(coin)
+    },
+    withdrawFee: function(){
+        const etherFee = "0.001"
+        const wei = Web3.utils.toWei(etherFee, "ether")
+        const weiFee = exports.convertWei2Coin(wei)
+        return weiFee 
     }
 }
 
