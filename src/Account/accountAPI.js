@@ -13,6 +13,7 @@ module.exports = {
     transfer: transfer,
     getWithdrawFee: getWithdrawFee
 }
+
 async function getAccount(id){
     return new Promise(function(resolve){
         AccountDB.findOne({id: id}, function(err, result){

@@ -4,8 +4,10 @@ const AccountDB = require("../models/account")
 var rpc_server = "http://localhost:8545"
 var web3 = new Web3(new Web3.providers.HttpProvider(rpc_server))
 const fs = require("fs")
+
 const validDelayBlock = 30
 var processBlock = {}
+
 async function getProcessedBlock(){
     try {
         if (!fs.existsSync(__dirname + "/../../resources/.checkBlock")){
@@ -41,53 +43,67 @@ async function checkValidAddress(addr){
     })
 }
 
+async function checkDatabaseValid(){
+    return new Promise(function(resolve, reject){
+        DepositDB.count({}, function(err, count){
+            if (count) return resolve()
+            reject()
+        })
+    })
+}
 
 async function updateNewTransaction(lastBlock = -1){
-    const block = (lastBlock == -1) ? (await web3.eth.getBlock("latest")) : (await web3.eth.getBlock(lastBlock))
-    // console.log(block)
-    if (!block) {
-        return setTimeout(updateNewTransaction, 1000, lastBlock);
-    } 
+    try {
+        const block = (lastBlock == -1) ? (await web3.eth.getBlock("latest")) : (await web3.eth.getBlock(lastBlock))
 
-    if (lastBlock==-1){
-        lastBlock=block.number++
-    } else {
-        lastBlock++
-    }
-    
+        if (!block) {
+            return setTimeout(updateNewTransaction, 1000, lastBlock);
+        } 
 
-    const trans = block.transactions
-    for (var i in trans) {
-        var item = trans[i]
-        let tx = await web3.eth.getTransaction(item)
-        let account = await checkValidAddress(tx.to)
-        // console.log("check " + tx.to, account ? true : false)
-
-        if (!account) continue;
-
-        var query = {txid: item}
-        var update = {
-            accountID: account.id,
-            from: tx.from,
-            to: tx.to,
-            value: tx.value,
-            $setOnInsert:{
-                status: "pending"
-            }
+        if (lastBlock==-1){
+            lastBlock= (block.number - validDelayBlock < 0) ? 0 : (block.number - validDelayBlock)
+        } else {
+            lastBlock++
         }
         
-        await new Promise(function(resolve, reject){
-            DepositDB.findOneAndUpdate(query, update, {upsert: true}, function(err){
-                if (err) {
-                    console.log(err)
-                    reject(new Error("DB Error"))
-                    return
+        const trans = block.transactions
+        for (var i in trans) {
+            var item = trans[i]
+            let tx = await web3.eth.getTransaction(item)
+            let account = await checkValidAddress(tx.to)
+            // console.log("check " + tx.to, account ? true : false)
+
+            if (!account) continue;
+
+            var query = {txid: item}
+            var update = {
+                accountID: account.id,
+                from: tx.from,
+                to: tx.to,
+                value: tx.value,
+                $setOnInsert:{
+                    status: "pending"
                 }
-                resolve()
+            }
+            
+            await new Promise(function(resolve, reject){
+                DepositDB.findOneAndUpdate(query, update, {upsert: true}, function(err){
+                    if (err) {
+                        console.log(err)
+                        reject(new Error("DB Error"))
+                        return
+                    }
+                    resolve()
+                })
             })
-        })
+        }
+        updateNewTransaction(lastBlock);
+
+    } catch(err){
+        console.log(err)
+        process.exit(-1)
     }
-    setTimeout(updateNewTransaction, 1000, lastBlock);
+    
 }
 
 
@@ -139,6 +155,7 @@ async function processValidBlock(){
 }
 
 !async function(){
+    await checkDatabaseValid()
     await getProcessedBlock()
     processValidBlock()
     updateNewTransaction()
