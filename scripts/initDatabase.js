@@ -1,6 +1,6 @@
 const DepositDB = require('../src/models/deposit')
 
-await new Promise(function(resolve){
+new Promise(function(resolve){
     new DepositDB({
         accountID: 0,
         from: 0,
@@ -9,6 +9,7 @@ await new Promise(function(resolve){
         status: "processed"
     }).save(function(){
         resolve()
+        process.exit()
     })
 })
 

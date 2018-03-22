@@ -9,25 +9,11 @@ const validDelayBlock = 30
 var processBlock = {}
 
 async function getProcessedBlock(){
-    try {
-        if (!fs.existsSync(__dirname + "/../../resources/.checkBlock")){
-            console.log('write new')
-            fs.writeFileSync(__dirname + "/../../resources/.checkBlock","")
-            let currentBlock =  Number(await web3.eth.getBlockNumber()) - validDelayBlock
-            if (currentBlock < 0) currentBlock = 0
-            fs.writeFileSync(__dirname + "/../../resources/.lastProcess", currentBlock)
-        }
+    
+    if (!fs.existsSync(__dirname + "/../../resources/.lastProcess")){
+        throw new Error("Last process block is not exists")    
+    }     
 
-        const data = fs.readFileSync(__dirname + "/../../resources/.checkBlock").toString()
-        const blockData = data.split("\n")
-        for (var i = 0; i < blockData.length; i++ ){
-            processBlock[blockData[i][0]] = blockData[i][1]
-        }
-        
-    } catch(err) {        
-        console.log(err)
-        process.exit()
-    }
 }
 
 async function checkValidAddress(addr){
@@ -46,8 +32,7 @@ async function checkValidAddress(addr){
 async function checkDatabaseValid(){
     return new Promise(function(resolve, reject){
         DepositDB.count({}, function(err, count){
-            if (count) return resolve()
-            reject()
+            if (count) return resolve(count)
         })
     })
 }
@@ -112,9 +97,7 @@ async function processValidBlock(){
         
         let blockID = Number(fs.readFileSync(__dirname + "/../../resources/.lastProcess").toString())+1
         if (blockID > Number(await web3.eth.getBlockNumber()) - validDelayBlock) return setTimeout(processValidBlock, 1000);
-        if (processBlock[blockID]) return setTimeout(processValidBlock, 1000);
-    
-        
+            
         const trans = (await web3.eth.getBlock(blockID)).transactions
         console.log("block: " + blockID, trans)
         for (var i in trans) {
@@ -142,10 +125,7 @@ async function processValidBlock(){
                 })
             })
         }
-    
-        fs.appendFileSync(__dirname + "/../../resources/.checkBlock",`${blockID} ${trans.length}\n`)
         fs.writeFileSync(__dirname + "/../../resources/.lastProcess", blockID)
-        processBlock[blockID] = trans.length
         processValidBlock()
     } catch(err) {        
         console.log(err)
@@ -155,8 +135,17 @@ async function processValidBlock(){
 }
 
 !async function(){
-    await checkDatabaseValid()
-    await getProcessedBlock()
-    processValidBlock()
-    updateNewTransaction()
+    try {
+        var isValid = await checkDatabaseValid() > 0 ? true : false
+        if (!isValid)
+            throw new Error("database is empty!")
+        await getProcessedBlock()
+        processValidBlock()
+        updateNewTransaction()
+
+    } catch(err){
+        console.log(err)
+    }
+
+    
 }()

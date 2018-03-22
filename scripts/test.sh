@@ -37,6 +37,8 @@ docker run -d -p 27017:27017 --name test_mongo mongo
 echo "Start ganache ..."
 sleep 2s
 
+node scripts/initDatabase
+
 password=123 PORT=10000 node src/server > logs/test_server.log &
 accountPID=$!
 echo "Run account ..."
